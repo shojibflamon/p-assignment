@@ -7,7 +7,6 @@ use ShojibFlamon\Service\Enums\ClientType;
 use ShojibFlamon\Service\Enums\Currencies;
 use ShojibFlamon\Service\Enums\OperationType;
 
-
 class CommissionFee
 {
     private $data = [];
@@ -55,11 +54,17 @@ class CommissionFee
         $this->baseCurrency = Currencies::EUR;
     }
 
+    /**
+     * @return void
+     */
     public function getCsvFromInput()
     {
         $this->data = file('input.csv', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     }
 
+    /**
+     * @return void
+     */
     public function calculate()
     {
         $rows = array_map('str_getcsv', $this->data);
@@ -69,6 +74,9 @@ class CommissionFee
         }
     }
 
+    /**
+     * @return string|void
+     */
     private function calculateFeePerTransaction()
     {
         $amount = $this->getAmount();
@@ -139,12 +147,24 @@ class CommissionFee
         }
     }
 
+    /**
+     * @param $amount
+     * @param $charge
+     * @return string
+     */
     private function getCommissionFee($amount, $charge): string
     {
 //        return $this->roundUp($amount * $charge * 0.01, $this->decimalPointCalculation);
         return $this->ceiling($amount * $charge * 0.01, $this->decimalPointCalculation);
     }
 
+    /**
+     * @param $clientId
+     * @return mixed
+     * Get the client credit limit
+     * If more than one transaction in a week (Monday to Sunday) then return rest of the credit
+     * else full credit (1000.00 EUR)
+     */
     private function getClientCreditLimit($clientId)
     {
         $clientTransactionDate = ($this->clientTransactionDateList[$clientId]) ?? '';
@@ -158,6 +178,12 @@ class CommissionFee
         return $this->clientCreditLimitList[$clientId];
     }
 
+    /**
+     * @return array
+     * Get the date list of a week (Monday to Sunay)
+     * Start Date = Monday
+     * End Date = Transaction Day
+     */
     private function getPreviousDatesInCurrentWeek(): array
     {
         $dates = [];
@@ -171,74 +197,123 @@ class CommissionFee
         return $dates;
     }
 
+    /**
+     * @param $clientId
+     * @return bool
+     * Check the transaction is less than free withdraw limit or not
+     */
     private function isFirstThreeTransaction($clientId): bool
     {
         return $this->freeWithdrawLimitList[$clientId] <= $this->freeWithdraw;
     }
 
+    /**
+     * @param $currency
+     * @return bool
+     */
     private function isCurrencyEuro($currency): bool
     {
         return $currency == Currencies::EUR;
     }
 
+    /**
+     * @return bool
+     */
     private function isClientTypeBusiness(): bool
     {
         return $this->getClintType() == ClientType::BUSINESS;
     }
 
+    /**
+     * @return bool
+     */
     private function isClientTypePrivate(): bool
     {
         return $this->getClintType() == ClientType::PRIVATE;
     }
 
+    /**
+     * @return bool
+     */
     private function isOperationTypeDeposit(): bool
     {
         return $this->getOperationType() == OperationType::DEPOSIT;
     }
 
+    /**
+     * @return bool
+     */
     private function isOperationTypeWithdraw(): bool
     {
         return $this->getOperationType() == OperationType::WITHDRAW;
     }
 
+    /**
+     * @return mixed
+     */
     private function getTransactionDate()
     {
         return $this->transactionRow[0];
     }
 
+    /**
+     * @return mixed
+     */
     private function getClintId()
     {
         return $this->transactionRow[1];
     }
 
+    /**
+     * @return mixed
+     */
     private function getClintType()
     {
         return $this->transactionRow[2];
     }
 
+    /**
+     * @return mixed
+     */
     private function getOperationType()
     {
         return $this->transactionRow[3];
     }
 
+    /**
+     * @return mixed
+     */
     private function getAmount()
     {
         return $this->transactionRow[4];
     }
 
+    /**
+     * @return mixed
+     */
     private function getCurrency()
     {
         return $this->transactionRow[5];
     }
 
-    private function roundUp($value, $decimal = 0): string
+    /**
+     * @param $value
+     * @return string
+     */
+    private function roundUp($value): string
     {
-        $mult = pow(10, $decimal);
+        $mult = pow(10, 0);
         $ceil = ceil($value * $mult) / $mult;
-        return number_format($ceil, $decimal, '.', '');
+        return number_format($ceil, 0, '.', '');
     }
 
-    private function ceiling($value, $decimal = 0): string
+    /**
+     * @param $value
+     * @param int $decimal
+     * @return string
+     * Round up amount with 2 decimal places
+     */
+    private function ceiling($value, int $decimal = 0): string
     {
         $offset = 0.5;
         if ($decimal !== 0) {
@@ -249,11 +324,17 @@ class CommissionFee
         return number_format($final, '2', '.', '');
     }
 
+    /**
+     * @return array
+     */
     public function getResult(): array
     {
         return $this->result;
     }
 
+    /**
+     * @return void
+     */
     public function printItem()
     {
         foreach ($this->result as $item) {
