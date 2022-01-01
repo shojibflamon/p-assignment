@@ -17,6 +17,6 @@ php index.php input.csv
 
 # Unit Test
 Go to your terminal & run this command. This command will run a sample currency conversation test.
-````shell
+```shell
 vendor/bin/phpunit
 ```
