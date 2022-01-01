@@ -1,0 +1,25 @@
+{
+  "name": "shojibflamon/commission-task",
+  "description": "Recruitment task",
+  "keywords": [],
+  "type": "project",
+  "authors": [
+    {
+      "name": "Md. Jahidul Islam",
+      "email": "shojib.seu@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "ShojibFlamon\\Service\\": "src/Service"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ShojibFlamon\\Tests\\": "tests/Service"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5"
+  }
+}
